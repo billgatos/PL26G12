@@ -1,6 +1,7 @@
 # Front-end da Linguagem LFun (Analisador Léxico e Sintático)
 
-Este repositório contém a implementação do *Front-end* para a linguagem funcional **LFun**, desenvolvido em Python com recurso à biblioteca **PLY (Python Lex-Yacc)**. O objetivo deste módulo é ler código-fonte em LFun, validá-lo e gerar a respetiva Árvore Sintática Abstrata (AST).
+Este repositório contém a implementação do *Front-end* para a linguagem funcional **LFun**, desenvolvido em Python com recurso à biblioteca **PLY (Python Lex-Yacc)**. 
+O objetivo deste módulo é ler código-fonte em LFun, validá-lo e gerar a respetiva Árvore Sintática Abstrata (AST).
 
 ## 🚀 Arquitetura e Passos da Solução
 
@@ -27,17 +28,45 @@ Para enriquecer a linguagem base, decidimos focar a implementação nas caracter
 
 ### 1. Funções Recursivas
 * **A Razão da Escolha:** Como a LFun não possui estruturas de controlo iterativas tradicionais (como ciclos `for` ou `while`), a recursividade é o **mecanismo essencial** para iteração. Sem ela, seria impossível escrever algoritmos que dependam de ciclos arbitrários ou manipulação de dados de tamanho variável.
-* **Implementação Sintática:** O *parser* foi desenhado para aceitar chamadas de funções genéricas (`FunCall`) em qualquer parte de uma expressão. A sintaxe não sofreu alterações, delegando para a próxima fase (Analisador Semântico/Interpretador) a correta resolução do ambiente/escopo da função para permitir a auto-invocação.
+* **Implementação Sintática:** O *parser* foi desenhado para aceitar chamadas de funções genéricas (`FunCall`) em qualquer parte de uma expressão. A sintaxe não sofreu alterações, delegando para a próxima fase a correta resolução do ambiente/escopo da função para permitir a auto-invocação.
 
 ### 2. Listas e *Pattern Matching* (`[T]`, `[]`, `h:t`)
-* **A Razão da Escolha:** As listas são a estrutura de dados por excelência na programação funcional. A escolha prende-se pela **sinergia perfeita com a expressão `when`**. Ter listas permite tirar o verdadeiro proveito do *Pattern Matching*, permitindo escrever código elegante que distingue entre uma lista vazia e uma lista com elementos.
-* **Implementação Sintática:** Foram introduzidos os *tokens* de parênteses retos (`[` e `]`) e o operador dois pontos (`:`). A gramática foi expandida para suportar não só a criação de listas matemáticas genéricas (`1 : 2 : []`), mas também a sua desconstrução explícita nos padrões do *when* (os casos `[]` e `h:t`), isolando-os semanticamente de ambiguidades (*reduce/reduce conflicts*).
+* **A Razão da Escolha:** As listas são a estrutura de dados por excelência na programação funcional. A escolha prende-se pela **sinergia perfeita com a expressão `when`**. Ter listas permite tirar o verdadeiro proveito do *Pattern Matching*, escrevendo código elegante que distingue entre uma lista vazia e uma lista com elementos.
+* **Implementação Sintática:** Foram introduzidos os *tokens* de parênteses retos (`[` e `]`) e o operador dois pontos (`:`). A gramática suporta a criação de listas genéricas e a sua desconstrução explícita nos padrões do *when*, isolando-os semanticamente de ambiguidades.
 
----
+## 💻 3. Interface Interativa (CLI) e Como Executar
 
-## 🛠️ Como Executar
+Para facilitar a avaliação e o teste do *parser*, implementámos um menu interativo diretamente no terminal. 
 
-**Pré-requisitos:**
-É necessário ter a biblioteca PLY instalada:
+### Pré-requisitos
+Certifique-se de que tem a biblioteca PLY instalada no seu ambiente:
 ```bash
 pip install ply
+```
+
+### Iniciar o Analisador
+Execute o script principal no seu terminal:
+```bash
+python analisador_sintatico.py
+```
+
+### Utilização do Menu
+Ao iniciar, será apresentado um menu com as seguintes opções:
+```text
+==============================
+   ANALISADOR SINTÁTICO LFun
+==============================
+1. Carregar de um ficheiro (.lfun)
+2. Introduzir código na consola
+3. Executar o exemplo embutido
+0. Sair
+==============================
+```
+
+* **`1` - Ficheiro:** Solicita o caminho de um ficheiro (ex: `teste.lfun`) e processa o seu conteúdo em bloco. Ideal para validar programas mais extensos.
+* **`2` - Consola:** Abre um modo de inserção livre (múltiplas linhas) para testar *snippets* na hora. 
+  > 💡 **Nota:** Para terminar a introdução de exemplos e submeter, basta pressionar as teclas `CTRL+D` em Linux/Mac ou `CTRL+Z` seguido de Enter no terminal do Windows (numa linha vazia).
+* **`3` - Exemplo embutido:** Executa instantaneamente um código de demonstração pré-configurado que ilustra o funcionamento em conjunto das listas e da recursividade.
+* **`0` - Sair:** Encerra a ferramenta em segurança.
+
+
