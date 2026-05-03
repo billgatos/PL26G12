@@ -1,5 +1,6 @@
 # analisador_sintatico.py
 import ply.yacc as yacc
+import sys
 from analisador_lexico import tokens
 from gramatica import Identifier, IfExpr, LetVarDecl, FunSignature, FunDef, FunCall, BinOp, UnaryOp 
 from gramatica import Literal, Identifier, IfExpr, WhenExpr, Case, DefaultPattern 
@@ -221,42 +222,141 @@ def p_error(p):
 
 parser = yacc.yacc()
 
+## Menu anterior para testes rápidos, mas agora existe 
+## um menu interativo mais completo
+
+            # # ==========================================
+            # # Execução e Teste com o novo cenário
+            # # ==========================================
+            # if __name__ == "__main__":
+            #     codigo_teste = """
+            #     fun inc : Int -> Int;
+            #     let inc x = x + 1;
+            #     inc(5);
+                
+            #     fun dobro : Int -> Int;
+            #     let dobro n = n * 2;
+            #     dobro(7);
+                
+            #     fun ePositivo : Int -> Bool;
+            #     let ePositivo n = n > 0;
+            #     ePositivo(-2);
+                
+            #     fun absoluto : Int -> Int;
+            #     let absoluto n = if n < 0 then 0 - n else n;
+                
+            #     absoluto(-5);
+            #     absoluto(8);    
+                
+            #     fun avalia : Int -> Bool;
+            #     let avalia x = 
+            #         when ( x ) is
+            #             -1,
+            #             1  -> true ;
+            #             0  -> false ;
+            #             _  -> true ;
+            #         end;
+                    
+            #     avalia(-1);
+            #     avalia(0);
+                
+            #     {- Função que calcula o tamanho de uma lista usando recursividade e pattern matching -}
+            #     fun tamanho : [Int] -> Int;
+            #     let tamanho lista = 
+            #         when ( lista ) is
+            #             []   -> 0 ;
+            #             h:t  -> 1 + tamanho(t) ;
+            #         end;
+                    
+            #     -- Criando e testando a lista [10, 20, 30]
+            #     let osMeusNumeros : [Int] = 10 : 20 : 30 : [];
+                
+            #     tamanho(osMeusNumeros);
+            #     """
+                
+            #     print("A analisar o seguinte código LFun com funções:\n" + codigo_teste)
+                
+            #     resultado_ast = parser.parse(codigo_teste)
+                
+            #     print("\nÁrvore Sintática gerada (AST):")
+            #     if resultado_ast:
+            #         for stmt in resultado_ast:
+            #             print(stmt)
+                        
+            
+            
+## novo formato de main
+## Pede ao utilizdor a escolha de entre 3 opções
+## Carregar código de um ficheiro, introduzir código diretamente na consola ou executar um exemplo embutido
+
+
 # ==========================================
-# Execução e Teste com o novo cenário
+# Execução e Interface com o Utilizador
 # ==========================================
+
+def processar_codigo(codigo, fonte):
+    """Função auxiliar para fazer o parse e imprimir a AST de forma limpa."""
+    print(f"\n{'-'*50}")
+    print(f"--- A analisar código ({fonte}) ---")
+    print(f"{'-'*50}")
+    
+    if not codigo.strip():
+        print("Erro: Nenhum código fornecido.")
+        return
+        
+    resultado_ast = parser.parse(codigo)
+    
+    print("\nÁrvore Sintática gerada (AST):")
+    if resultado_ast:
+        for stmt in resultado_ast:
+            print(stmt)
+    else:
+        print("A AST está vazia ou ocorreu um erro de sintaxe impeditivo.")
+    print(f"{'-'*50}\n")
+
+
 if __name__ == "__main__":
-    codigo_teste = """
+    codigo_exemplo = """
+    
     fun inc : Int -> Int;
     let inc x = x + 1;
     inc(5);
-    
+
     fun dobro : Int -> Int;
     let dobro n = n * 2;
     dobro(7);
-    
+
     fun ePositivo : Int -> Bool;
     let ePositivo n = n > 0;
     ePositivo(-2);
-    
+
     fun absoluto : Int -> Int;
     let absoluto n = if n < 0 then 0 - n else n;
-    
+
     absoluto(-5);
     absoluto(8);    
-    
+
     fun avalia : Int -> Bool;
     let avalia x = 
-        when ( x ) is
-            -1,
-            1  -> true ;
-            0  -> false ;
-            _  -> true ;
-        end;
-        
+    when ( x ) is
+        -1,
+        1  -> true ;
+        0  -> false ;
+        _  -> true ;
+    end;
+
     avalia(-1);
     avalia(0);
-    
+
     {- Função que calcula o tamanho de uma lista usando recursividade e pattern matching -}
+    fun tamanho : [Int] -> Int;
+    let tamanho lista = 
+    when ( lista ) is
+        []   -> 0 ;
+        h:t  -> 1 + tamanho(t) ;
+    end;
+
+    {- Exemplo Completo: Recursividade e Listas -}
     fun tamanho : [Int] -> Int;
     let tamanho lista = 
         when ( lista ) is
@@ -264,17 +364,49 @@ if __name__ == "__main__":
             h:t  -> 1 + tamanho(t) ;
         end;
         
-    -- Criando e testando a lista [10, 20, 30]
     let osMeusNumeros : [Int] = 10 : 20 : 30 : [];
-    
     tamanho(osMeusNumeros);
     """
-    
-    print("A analisar o seguinte código LFun com funções:\n" + codigo_teste)
-    
-    resultado_ast = parser.parse(codigo_teste)
-    
-    print("\nÁrvore Sintática gerada (AST):")
-    if resultado_ast:
-        for stmt in resultado_ast:
-            print(stmt)
+
+    while True:
+        print("\n" + "="*30)
+        print("   ANALISADOR SINTÁTICO LFun")
+        print("="*30)
+        print("1. Carregar de um ficheiro (.lfun)")
+        print("2. Introduzir código na consola")
+        print("3. Executar o exemplo embutido")
+        print("0. Sair")
+        print("="*30)
+        
+        escolha = input("Escolha uma opção: ")
+        
+        if escolha == '1':
+            caminho = input("Introduza o caminho do ficheiro (ex: teste.lfun): ")
+            try:
+                with open(caminho, 'r', encoding='utf-8') as f:
+                    codigo = f.read()
+                processar_codigo(codigo, caminho)
+            except FileNotFoundError:
+                print(f"\n[ERRO] O ficheiro '{caminho}' não foi encontrado.")
+            except Exception as e:
+                print(f"\n[ERRO] Ocorreu um problema ao ler o ficheiro: {e}")
+                
+        elif escolha == '2':
+            print("\nIntroduza o seu código LFun abaixo.")
+            print("(Pressione Ctrl+D no Linux/Mac ou Ctrl+Z seguido de Enter no Windows numa linha vazia para submeter)")
+            print("-" * 40)
+            try:
+                codigo = sys.stdin.read()
+                processar_codigo(codigo, "Consola")
+            except KeyboardInterrupt:
+                print("\nOperação cancelada.")
+                
+        elif escolha == '3':
+            processar_codigo(codigo_exemplo, "Exemplo Embutido")
+            
+        elif escolha == '0':
+            print("\nA encerrar o analisador. Bom trabalho com o projeto!")
+            break
+            
+        else:
+            print("\n[ERRO] Opção inválida. Por favor, escolha 0, 1, 2 ou 3.")
