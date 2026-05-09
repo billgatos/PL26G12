@@ -1,0 +1,53 @@
+fun inc : Int -> Int;
+    let inc x = x + 1;
+    inc(5);
+
+    fun dobro : Int -> Int;
+    let dobro n = n * 2;
+    dobro(7);
+
+    fun ePositivo : Int -> Bool;
+    let ePositivo n = n > 0;
+    ePositivo(-2);
+
+    fun absoluto : Int -> Int;
+    let absoluto n = if n < 0 then 0 - n else n;
+
+    absoluto(-5);
+    absoluto(8);    
+
+    fun avalia : Int -> Bool;
+    let avalia x = 
+    when ( x ) is
+        -1,
+        1  -> true ;
+        0  -> false ;
+        _  -> true ;
+    end;
+
+    avalia(-1);
+    avalia(0);
+
+    {- Função que calcula o tamanho de uma lista usando recursividade e pattern matching -}
+
+    --  dofgjrtlgjrthgrtg
+    --e ergrgrtgr
+
+    
+    fun tamanho : [Int] -> Int;
+    let tamanho lista = 
+    when ( lista ) is
+        []   -> 0 ;
+        h:t  -> 1 + tamanho(t) ;
+    end;
+
+    {- Exemplo Completo: Recursividade e Listas -}
+    fun tamanho : [Int] -> Int;
+    let tamanho lista = 
+        when ( lista ) is
+            []   -> 0 ;
+            h:t  -> 1 + tamanho(t) ;
+        end;
+        
+    let osMeusNumeros : [Int] = 10 : 20 : 30 : [];
+    tamanho(osMeusNumeros);

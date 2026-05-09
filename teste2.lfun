@@ -1,0 +1,57 @@
+{- Teste 1: Criação de Listas -}
+let inteiros : [Int] = 1 : 2 : 3 : [];
+let booleanos : [Bool] = true : false : true : [];
+let listaVazia : [Int] =  [];
+
+{- Teste 2: Avaliação de inteiros com When -}
+fun detetaNumero : Int -> Int;
+let detetaNumero x = 
+    when (x) is
+        0 -> 100;
+        1 -> 200;
+        -1 -> 300;
+        _ -> 999;
+    end;
+
+detetaNumero(0);
+detetaNumero(-1);
+detetaNumero(50);
+
+{- Teste 3: Função para extrair o primeiro elemento -}
+fun cabeca : [Int] -> Int;
+let cabeca lista = 
+    when (lista) is
+        []  -> -999;
+        h:t -> h;
+    end;
+
+let osMeusNumeros : [Int] = 42 : 10 : [];
+
+fun semNumeros : [Int] -> Int;
+let semNumeros lista = [];
+
+cabeca(osMeusNumeros);
+cabeca(semNumeros);
+
+{- Teste 4: Soma dos elementos de uma lista -}
+fun somaLista : [Int] -> Int;
+let somaLista lista = 
+    when (lista) is
+        []  -> 0;
+        h:t -> h + somaLista(t);
+    end;
+
+let notas : [Int] = 10 : 15 : 20 : [];
+somaLista(notas);
+
+
+{- Teste 5: Lógica e Inversão -}
+fun inverteSinal : Int -> Int;
+let inverteSinal x = 
+    if x < 0 then 
+        0 - x 
+    else 
+        -x;
+
+inverteSinal(15);
+inverteSinal(-8);

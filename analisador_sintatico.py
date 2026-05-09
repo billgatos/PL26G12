@@ -299,7 +299,7 @@ parser = yacc.yacc()
 # Execução e Interface com o Utilizador
 # ==========================================
 
-def processar_codigo(codigo, fonte):
+def processar_codigo(codigo, fonte, limpar_tabela=True):
     """Função auxiliar para fazer o parse e imprimir a AST de forma limpa."""
     print(f"\n{'-'*50}")
     print(f"--- A analisar código ({fonte}) ---")
@@ -308,6 +308,10 @@ def processar_codigo(codigo, fonte):
     if not codigo.strip():
         print("Erro: Nenhum código fornecido.")
         return
+    
+    import analisador_semantico
+    if limpar_tabela:
+        analisador_semantico.tabela.clear()
         
     resultado_ast = parser.parse(codigo)
     
@@ -315,6 +319,8 @@ def processar_codigo(codigo, fonte):
     if resultado_ast:
         for stmt in resultado_ast:
             print(stmt)
+            analisador_semantico.processar(stmt)
+            
     else:
         print("A AST está vazia ou ocorreu um erro de sintaxe impeditivo.")
     print(f"{'-'*50}\n")
@@ -325,6 +331,8 @@ if __name__ == "__main__":
     
     fun inc : Int -> Int;
     let inc x = x + 1;
+    let inc x = 18;
+    
     inc(5);
 
     fun dobro : Int -> Int;
