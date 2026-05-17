@@ -20,7 +20,7 @@ reserved = {
 # Lista de Tokens
 tokens = [
     'ID', 'NUMBER',
-    'PLUS', 'MINUS', 'TIMES',
+    'PLUS', 'MINUS', 'TIMES','DIVIDE',
     'LT', 'GT', 'EQ', 'ARROW',
     'ASSIGN', 'COLON', 'SEMI',
     'LPAREN', 'RPAREN',
@@ -33,6 +33,7 @@ tokens = [
 t_PLUS    = r'\+'
 t_MINUS   = r'-'
 t_TIMES   = r'\*'
+t_DIVIDE  = r'/'
 t_LT      = r'<'
 t_GT      = r'>'
 t_EQ      = r'=='

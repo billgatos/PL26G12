@@ -2,15 +2,13 @@
 import ply.yacc as yacc
 import sys
 from analisador_lexico import tokens
-from gramatica import Identifier, IfExpr, LetVarDecl, FunSignature, FunDef, FunCall, BinOp, UnaryOp 
-from gramatica import Literal, Identifier, IfExpr, WhenExpr, Case, DefaultPattern 
-from gramatica import ListType, EmptyList, ConsExpr, EmptyListPattern, ConsPattern, Comentario
+from gramatica import *
 
 precedence = (
     ('left', 'EQ', 'LT', 'GT'),
     ('right', 'COLON'),
     ('left', 'PLUS', 'MINUS'),
-    ('left', 'TIMES'),
+    ('left', 'TIMES', 'DIVIDE'),
     ('right', 'UMINUS'),
 )
 
@@ -20,7 +18,7 @@ def p_program(p):
 
 def p_statements(p):
     '''statements : statement
-                  | statements statement'''
+                | statements statement'''
     if len(p) == 2:
         p[0] = [p[1]]
     else:
@@ -58,11 +56,12 @@ def p_type(p):
 
 def p_expression_binop(p):
     '''expression : expression PLUS expression
-                  | expression MINUS expression
-                  | expression TIMES expression
-                  | expression LT expression
-                  | expression GT expression
-                  | expression EQ expression'''
+                | expression MINUS expression
+                | expression TIMES expression
+                | expression DIVIDE expression
+                | expression LT expression
+                | expression GT expression
+                | expression EQ expression'''
     p[0] = BinOp(p[2], p[1], p[3])
     
 def p_expression_uminus(p):
@@ -84,7 +83,7 @@ def p_expression_number(p):
 
 def p_expression_bool(p):
     '''expression : TRUE
-                  | FALSE'''
+                | FALSE'''
     p[0] = Literal(p[1] == 'true', 'Bool')
 
 def p_expression_id(p):
@@ -99,17 +98,6 @@ def p_expression_when(p):
     '''expression : WHEN expression IS cases END'''
     p[0] = WhenExpr(p[2], p[4])
     
-def p_expression_list_empty(p):
-    '''expression : LBRACK RBRACK'''
-    p[0] = EmptyList()
-
-# testar bem as listas depois, por agora so o que ja tinhamos
-def p_expression_list_cons(p):
-    #'''expression : expression COLON expression'''
-    #p[0] = ConsExpr(p[1], p[3])
-    '''expression : LBRACK expression COMMA expression RBRACK'''
-    p[0] = ConsExpr(p[2], p[4])
-
 # Instrução: Comentário (não precisa de ponto e vírgula)
 def p_statement_comment(p):
     '''statement : COMMENT'''
@@ -117,7 +105,7 @@ def p_statement_comment(p):
 
 def p_cases(p):
     '''cases : case
-             | cases case'''
+            | cases case'''
     if len(p) == 2:
         p[0] = [p[1]]
     else:
@@ -134,42 +122,6 @@ def p_patterns(p):
         p[0] = [p[1]]
     else:
         p[0] = p[1] + [p[3]]
-
-# def p_pattern(p):
-#     '''pattern : expression
-#                | UNDERSCORE
-#                | LBRACK RBRACK
-#                | ID COLON ID'''
-#     # if p[1] == '_':
-#     #     p[0] = DefaultPattern()
-#     # else:
-#     #     p[0] = p[1]
-#     if len(p) == 2:
-#         if p[1] == '_':
-#             p[0] = DefaultPattern()
-#         else:
-#             p[0] = p[1]
-#     elif len(p) == 3:
-#         p[0] = EmptyListPattern()
-#     elif len(p) == 4:
-#         p[0] = ConsPattern(p[1], p[3])
-# também não funciona
-
-# def p_pattern(p):
-#     '''pattern : expression
-#                | UNDERSCORE'''
-#     if p[1] == '_':
-#         p[0] = DefaultPattern()
-#     else:
-#         # Depois de ler como uma expressão genérica, transformamos no nó de Padrão correto
-#         if isinstance(p[1], EmptyList):
-#             p[0] = EmptyListPattern()
-#         elif isinstance(p[1], ConsExpr):
-#             # Assumimos que o ConsExpr apanhou dois Identificadores (h e t)
-#             p[0] = ConsPattern(p[1].head, p[1].tail)
-#         else:
-#             p[0] = p[1]
-
 
 # ==========================================
 # REGRAS DE PADRÕES (PATTERNS) PARA O WHEN
@@ -188,7 +140,7 @@ def p_pattern_negative(p):
 # Padrão: Booleanos (ex: true, false)
 def p_pattern_bool(p):
     '''pattern : TRUE
-               | FALSE'''
+            | FALSE'''
     p[0] = Literal(p[1] == 'true', 'Bool')
 
 # Padrão: O caso por defeito ( _ )
@@ -205,7 +157,6 @@ def p_pattern_empty_list(p):
 def p_pattern_cons(p):
     '''pattern : ID COLON ID'''
     p[0] = ConsPattern(p[1], p[3])
-
 
 # Expressão: Lista vazia
 def p_expression_list_empty(p):
@@ -227,69 +178,6 @@ def p_error(p):
 
 parser = yacc.yacc()
 
-## Menu anterior para testes rápidos, mas agora existe 
-## um menu interativo mais completo
-
-            # # ==========================================
-            # # Execução e Teste com o novo cenário
-            # # ==========================================
-            # if __name__ == "__main__":
-            #     codigo_teste = """
-            #     fun inc : Int -> Int;
-            #     let inc x = x + 1;
-            #     inc(5);
-                
-            #     fun dobro : Int -> Int;
-            #     let dobro n = n * 2;
-            #     dobro(7);
-                
-            #     fun ePositivo : Int -> Bool;
-            #     let ePositivo n = n > 0;
-            #     ePositivo(-2);
-                
-            #     fun absoluto : Int -> Int;
-            #     let absoluto n = if n < 0 then 0 - n else n;
-                
-            #     absoluto(-5);
-            #     absoluto(8);    
-                
-            #     fun avalia : Int -> Bool;
-            #     let avalia x = 
-            #         when ( x ) is
-            #             -1,
-            #             1  -> true ;
-            #             0  -> false ;
-            #             _  -> true ;
-            #         end;
-                    
-            #     avalia(-1);
-            #     avalia(0);
-                
-            #     {- Função que calcula o tamanho de uma lista usando recursividade e pattern matching -}
-            #     fun tamanho : [Int] -> Int;
-            #     let tamanho lista = 
-            #         when ( lista ) is
-            #             []   -> 0 ;
-            #             h:t  -> 1 + tamanho(t) ;
-            #         end;
-                    
-            #     -- Criando e testando a lista [10, 20, 30]
-            #     let osMeusNumeros : [Int] = 10 : 20 : 30 : [];
-                
-            #     tamanho(osMeusNumeros);
-            #     """
-                
-            #     print("A analisar o seguinte código LFun com funções:\n" + codigo_teste)
-                
-            #     resultado_ast = parser.parse(codigo_teste)
-                
-            #     print("\nÁrvore Sintática gerada (AST):")
-            #     if resultado_ast:
-            #         for stmt in resultado_ast:
-            #             print(stmt)
-                        
-            
-            
 ## novo formato de main
 ## Pede ao utilizdor a escolha de entre 3 opções
 ## Carregar código de um ficheiro, introduzir código diretamente na consola ou executar um exemplo embutido
@@ -320,6 +208,8 @@ def processar_codigo(codigo, fonte, limpar_tabela=True):
         for stmt in resultado_ast:
             print(stmt)
             analisador_semantico.processar(stmt)
+            " adiciona uma linha de separação entre cada declaração para melhor legibilidade "
+            print("-" * 40)
             
     else:
         print("A AST está vazia ou ocorreu um erro de sintaxe impeditivo.")
@@ -370,15 +260,15 @@ if __name__ == "__main__":
     end;
 
     {- Exemplo Completo: Recursividade e Listas -}
-    fun tamanho : [Int] -> Int;
-    let tamanho lista = 
+    fun tamanhol : [Int] -> Int;
+    let tamanhol lista = 
         when ( lista ) is
             []   -> 0 ;
-            h:t  -> 1 + tamanho(t) ;
+            h:t  -> 1 + tamanhol(t) ;
         end;
         
     let osMeusNumeros : [Int] = 10 : 20 : 30 : [];
-    tamanho(osMeusNumeros);
+    tamanhol(osMeusNumeros);
     """
 
     while True:

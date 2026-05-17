@@ -42,12 +42,12 @@ fun inc : Int -> Int;
     end;
 
     {- Exemplo Completo: Recursividade e Listas -}
-    fun tamanho : [Int] -> Int;
-    let tamanho lista = 
+    fun tamanhol : [Int] -> Int;
+    let tamanhol lista = 
         when ( lista ) is
             []   -> 0 ;
             h:t  -> 1 + tamanho(t) ;
         end;
         
     let osMeusNumeros : [Int] = 10 : 20 : 30 : [];
-    tamanho(osMeusNumeros);
+    tamanhol(osMeusNumeros);
